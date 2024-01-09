@@ -1,25 +1,53 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import Question from './components/Question';
+import CategorySelector from './components/CategorySelector';
+import ResultModal from './components/ResultModal';
+import Scoreboard from './components/Scoreboard';
+import useTrivia from './useTrivia';
 import './App.css';
 
-function App() {
+export default function App() {
+  const { question, getQuestion, category, setCategory } = useTrivia();
+  const [isCorrect, setIsCorrect] = useState(null);
+
+  function handleQuestionAnswered(answer) {
+    const isAnswerCorrect = answer === question.correct_answer;
+    setIsCorrect(isAnswerCorrect);
+  }
+
+  function handleNextQuestion() {
+    setIsCorrect(null);
+    getQuestion();
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      {/* show the result modal ----------------------- */}
+      {isCorrect !== null && (
+        <ResultModal
+          isCorrect={isCorrect}
+          question={question}
+          getQuestion={handleNextQuestion}
+        />
+      )}
+      {/* question header ----------------------- */}
+      <div className="question-header">
+        <CategorySelector category={category} chooseCategory={setCategory} />
+        <Scoreboard isCorrect={isCorrect} />
+      </div>
+      {/* the question itself ----------------------- */}
+      <div className="question-main">
+        {question && (
+          <Question
+            question={question}
+            answerQuestion={handleQuestionAnswered}
+          />
+        )}
+      </div>
+      {/* question footer ----------------------- */}
+      <div className="question-footer">
+        <button onClick={handleNextQuestion}>Go to next question 👉</button>
+      </div>
     </div>
   );
 }
-
-export default App;
